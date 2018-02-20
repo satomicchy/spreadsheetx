@@ -91,7 +91,7 @@ describe "Spreadsheetx" do
       6.times do |col|
         random_string = (0...30).map{65.+(rand(25)).chr}.join
         # ump the row because there is no row 0
-        workbook.worksheets.last.update_cell(col, (row+1), random_string)
+        workbook.worksheets.last.update_cell((col+1), (row+1), random_string)
       end
     end
 

@@ -2,6 +2,7 @@ module SpreadsheetX
 
   # Workbooks are made up of N Worksheets, this class represents a specific Worksheet.
   class Worksheet
+    require 'date'
 
     attr_reader :sheet_id
     attr_reader :r_id
