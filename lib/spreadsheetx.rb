@@ -1,5 +1,4 @@
-# zipruby is nice as it can modify an existing zip file, perfect for our usecase 
-require 'zipruby'
+require 'zip'
 # we use this because it is WAY faster than rexml
 require 'xml'
 # for copying files

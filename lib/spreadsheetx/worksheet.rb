@@ -14,18 +14,21 @@ module SpreadsheetX
       @r_id = r_id
       @name = name
 
-      # open the workbook
-      archive.fopen("xl/worksheets/sheet#{@r_id}.xml") do |f| 
+      archive.each do |file|
+        case file.name
+        # open the workbook
+        when "xl/worksheets/sheet#{@r_id}.xml"
 
-        # read contents of this file
-        file_contents = f.read 
-        # parse the XML and hold the doc
-        @xml_doc = XML::Document.string(file_contents)
-        # set the default namespace
-        @xml_doc.root.namespaces.default_prefix = 'spreadsheetml'
+          # read contents of this file
+          file_contents = file.get_input_stream.read
 
+          # parse the XML and hold the doc
+          @xml_doc = XML::Document.string(file_contents)
+          # set the default namespace
+          @xml_doc.root.namespaces.default_prefix = 'spreadsheetml'
+
+        end
       end
-      
     end
 
     # update the value of a particular cell, if the row or cell doesnt exist in the XML, then it will be created
