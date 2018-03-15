@@ -13,11 +13,13 @@ module SpreadsheetX
       @sheet_id = sheet_id
       @r_id = r_id
       @name = name
+      sheet_target(archive, r_id)
 
       archive.each do |file|
         case file.name
         # open the workbook
-        when "xl/worksheets/sheet#{@r_id}.xml"
+        when "xl/#{@sheet_target}"
+        # when "xl/#{@sheet_target}"
 
           # read contents of this file
           file_contents = file.get_input_stream.read
@@ -27,6 +29,23 @@ module SpreadsheetX
           # set the default namespace
           @xml_doc.root.namespaces.default_prefix = 'spreadsheetml'
 
+        end
+      end
+    end
+
+    def sheet_target(archive, r_id)
+      archive.each do |file|
+        case file.name
+        when "xl/_rels/workbook.xml.rels"
+          doc        = XML::Document.string file.get_input_stream.read
+          name_space = doc.root.namespaces.default.href
+
+          doc.find("//r:Relationship", "r:#{name_space}").each do |r|
+            if r[:Id] == "rId#{r_id}"
+              @sheet_target = r[:Target]
+              break
+            end
+          end
         end
       end
     end
