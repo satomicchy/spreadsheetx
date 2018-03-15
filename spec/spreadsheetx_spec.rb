@@ -55,7 +55,7 @@ describe "Spreadsheetx" do
   it "allows cell values to be updated" do
   
     # a valid xlsx file used for testing
-    empty_xlsx_file = "#{File.dirname(__FILE__)}/../templates/spec.xlsx"
+    empty_xlsx_file = "#{File.dirname(__FILE__)}/../templates/klass_student_list.xlsx"
     workbook = SpreadsheetX.open(empty_xlsx_file)
   
     workbook.worksheets.last.update_cell(1, 1, 9)

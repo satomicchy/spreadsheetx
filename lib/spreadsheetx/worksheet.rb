@@ -13,11 +13,13 @@ module SpreadsheetX
       @sheet_id = sheet_id
       @r_id = r_id
       @name = name
-
+      @sheet_number = sheet_number(archive, r_id)
+p @sheet_number
       archive.each do |file|
         case file.name
         # open the workbook
-        when "xl/worksheets/sheet#{@r_id}.xml"
+        when "xl/worksheets/sheet#{@sheet_number}.xml"
+        # when "xl/worksheets/sheet#{@r_id}.xml"
 
           # read contents of this file
           file_contents = file.get_input_stream.read
@@ -29,6 +31,22 @@ module SpreadsheetX
 
         end
       end
+    end
+
+    def sheet_number(archive, r_id)
+      archive.each do |file|
+        case file.name
+        when "xl/_rels/workbook.xml.rels"
+          doc = XML::Document.string file.get_input_stream.read
+          p doc.root.methods
+          doc.find("//r:Relationship", "r:http://schemas.openxmlformats.org/package/2006/relationships").each do |r|
+            p "---------------"
+            p r[:Id]
+          end
+        end
+      end
+
+      sheet_number = r_id
     end
 
     # update the value of a particular cell, if the row or cell doesnt exist in the XML, then it will be created
