@@ -73,10 +73,10 @@ module SpreadsheetX
 
         # replace with the new worksheets
         @worksheets.each do |worksheet|
-          file = "sheet#{worksheet.r_id}.xml"
+          file = file_name = "sheet#{worksheet.sheet_number}.xml"
           Tempfile.open do |file|
             file.write worksheet.to_s
-            ar.add("xl/worksheets/sheet#{worksheet.r_id}.xml", file)
+            ar.add("xl/worksheets/#{file_name}", file)
           end
         end
                 

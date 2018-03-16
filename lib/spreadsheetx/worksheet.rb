@@ -7,18 +7,20 @@ module SpreadsheetX
     attr_reader :sheet_id
     attr_reader :r_id
     attr_reader :name
+    attr_reader :sheet_number
     
     # return a Worksheet object which relates to a specific Worksheet
     def initialize(archive, sheet_id, r_id, name)
       @sheet_id = sheet_id
       @r_id = r_id
       @name = name
-      sheet_target(archive, r_id)
+      @target_file  = sheet_target(archive, r_id)
+      @sheet_number = @target_file.split('.')[0][-1]
 
       archive.each do |file|
         case file.name
         # open the workbook
-        when "xl/#{@sheet_target}"
+        when "xl/#{@target_file}"
         # when "xl/#{@sheet_target}"
 
           # read contents of this file
@@ -34,6 +36,8 @@ module SpreadsheetX
     end
 
     def sheet_target(archive, r_id)
+      target_file = ""
+
       archive.each do |file|
         case file.name
         when "xl/_rels/workbook.xml.rels"
@@ -42,12 +46,13 @@ module SpreadsheetX
 
           doc.find("//r:Relationship", "r:#{name_space}").each do |r|
             if r[:Id] == "rId#{r_id}"
-              @sheet_target = r[:Target]
+              target_file = r[:Target]
               break
             end
           end
         end
       end
+      target_file
     end
 
     # update the value of a particular cell, if the row or cell doesnt exist in the XML, then it will be created
@@ -104,6 +109,7 @@ module SpreadsheetX
       
       # numeric types
       if val.kind_of?(Integer) || val.kind_of?(Float) || val.kind_of?(Fixnum)
+        cell['t'] = 'n'
         
         cell_value = XML::Node.new('v')
         cell_value.content = val.to_s
