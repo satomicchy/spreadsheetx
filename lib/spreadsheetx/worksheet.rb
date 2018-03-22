@@ -63,7 +63,7 @@ module SpreadsheetX
       val_is_a_date = (val.kind_of?(Date) || val.kind_of?(Time) || val.kind_of?(DateTime))
       
       # if the val is nil or an empty string, then just delete the cell
-      if val.nil? || val == ''
+      if val.nil?
         if cell = @xml_doc.find_first("spreadsheetml:sheetData/spreadsheetml:row[@r=#{row_number}]/spreadsheetml:c[@r='#{cell_id}']")
           cell.remove!
         end
@@ -100,7 +100,7 @@ module SpreadsheetX
       end
       
       # are we setting a format
-      cell['s'] = format.to_s
+      cell['s'] = format.to_s if format
       
       # reset this attribute
       cell['t'] = ''
