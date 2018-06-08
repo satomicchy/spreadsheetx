@@ -108,7 +108,7 @@ module SpreadsheetX
       # create the node which represents the value in the cell
       
       # numeric types
-      if val.kind_of?(Integer) || val.kind_of?(Float) || val.kind_of?(Fixnum)
+      if val.kind_of?(Integer) || val.kind_of?(Float)
         cell['t'] = 'n'
         
         cell_value = XML::Node.new('v')
