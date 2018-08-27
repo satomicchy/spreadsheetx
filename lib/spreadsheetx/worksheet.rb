@@ -8,6 +8,8 @@ module SpreadsheetX
     attr_reader :r_id
     attr_reader :name
     attr_reader :sheet_number
+    attr_reader :drawing
+    attr_reader :drawing_sheet_number
     
     # return a Worksheet object which relates to a specific Worksheet
     def initialize(archive, sheet_id, r_id, name)
@@ -28,8 +30,28 @@ module SpreadsheetX
 
           # parse the XML and hold the doc
           @xml_doc = XML::Document.string(file_contents)
+
           # set the default namespace
           @xml_doc.root.namespaces.default_prefix = 'spreadsheetml'
+
+          # set the namespace for drawing
+          name_space = @xml_doc.root.namespaces.default.href
+
+          # parse the drawing XML and hold the doc
+          @xml_doc.find("//r:drawing", "r:#{name_space}").each do |r|
+            drawing_rid = r[:id]
+            target_file = drawing_target(archive, drawing_rid)
+            @drawing_sheet_number = target_file.split('.')[-2][-1]
+
+            archive.each do |file|
+              case file.name
+              # open the drawing
+              when Pathname.new("xl/worksheets").join(target_file).to_s
+                file_contents = file.get_input_stream.read
+                @drawing = XML::Document.string(file_contents)
+              end
+            end
+          end
 
         end
       end
@@ -46,6 +68,26 @@ module SpreadsheetX
 
           doc.find("//r:Relationship", "r:#{name_space}").each do |r|
             if r[:Id] == "rId#{r_id}"
+              target_file = r[:Target]
+              break
+            end
+          end
+        end
+      end
+      target_file
+    end
+
+    def drawing_target(archive, r_id)
+      target_file = ""
+
+      archive.each do |file|
+        case file.name
+        when "xl/worksheets/_rels/sheet#{@sheet_number}.xml.rels"
+          doc        = XML::Document.string file.get_input_stream.read
+          name_space = doc.root.namespaces.default.href
+
+          doc.find("//r:Relationship", "r:#{name_space}").each do |r|
+            if r[:Id] == r_id
               target_file = r[:Target]
               break
             end
@@ -141,6 +183,20 @@ module SpreadsheetX
       # now we put the value in the cell
       cell << cell_value
 
+    end
+
+    # update the value of a particular text-box, if it has its own name.
+    def update_textbox(box_name, val)
+      if box_name
+        self.drawing.find("//xdr:cNvPr").each do |node|
+          if node[:name] == box_name
+            parents      = node.parent.parent
+            node         = parents.find("xdr:txBody/a:p/a:r/a:t").first
+            node.content = val
+            break
+          end
+        end
+      end
     end
     
     # the number of rows containing data this sheet has 

@@ -148,4 +148,28 @@ describe "Spreadsheetx" do
   
   end
   
+  it "allow accessing worksheet.drawing" do
+
+    # a valid xlsx file used for testing
+    target_xlsx_file = "#{File.dirname(__FILE__)}/../templates/spec_drawing.xlsx"
+    workbook = SpreadsheetX.open(target_xlsx_file)
+
+#    workbook.worksheets.length.should == 2
+#    workbook.worksheets.last.name.should == 'Test'
+
+  end
+
+  it "allows text box values to be updated" do
+
+    # a valid xlsx file used for testing
+    target_xlsx_file = "#{File.dirname(__FILE__)}/../templates/spec_drawing.xlsx"
+    workbook = SpreadsheetX.open(target_xlsx_file)
+
+    workbook.worksheets.first.update_textbox("text box 1", "cahnged_box")
+
+    new_xlsx_file = "#{File.dirname(__FILE__)}/../templates/spec_drawing_output.xlsx"
+    workbook.save(new_xlsx_file)
+
+  end
+
 end

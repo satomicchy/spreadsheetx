@@ -78,6 +78,14 @@ module SpreadsheetX
             file.write worksheet.to_s
             ar.add("xl/worksheets/#{file_name}", file)
           end
+
+          if worksheet.drawing_sheet_number
+            drawing_file_name = "drawing#{worksheet.drawing_sheet_number}.xml"
+            Tempfile.open do |f|
+              f.write worksheet.drawing.to_s
+              ar.add("xl/drawings/#{drawing_file_name}", f)
+            end
+          end
         end
                 
       end
